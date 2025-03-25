@@ -1,5 +1,6 @@
 from flask import request, jsonify, make_response
-from src.Application.Service.user_service import LoginService
+from src.Application.Service.user_service import SellerService
+from src.Infrastructure.Models.user import Seller
 
 
 class LoginController:
@@ -9,12 +10,12 @@ class LoginController:
         email = data.get('email')
         password = data.get('password')
 
-        user = LoginService.sign_in(email, password)
+        seller = SellerService.authenticate(email, password)
 
-        if user:
+        if seller:
             return make_response(jsonify({
                 "messagem": "Login successful!",
-                "user": user.to_dict()
+                "user": seller.to_domain().to_dict()
             }), 200)
 
         else:
