@@ -5,7 +5,63 @@ import random
 
 
 class SellerService:
-	@staticmethod
+    @staticmethod
+    def create_user(name, cnpj, email, phone, password, role="Vendedor"):
+        hashed_password = generate_password_hash(password)
+        activation_code = str(random.randint(1000, 9999)
+                              ) if role == "seller" else None
+
+        new_seller = Seller(
+            name=name,
+            cnpj=cnpj,
+            email=email,
+            phone=phone,
+            password=hashed_password,
+            status="Inativo",
+            activation_code=activation_code,
+            role=role
+        )
+
+        db.session.add(new_seller)
+        db.session.commit()
+
+        return new_seller.to_domain()
+
+    @staticmethod
+    def get_seller():
+        seller = Seller.query.all()
+        return [sellers.to_domain() for sellers in seller]
+
+    @staticmethod
+    def get_seller_by_id(seller_id):
+        seller = Seller.query.get(seller_id)
+        return seller.to_domain() if seller else None
+
+    @staticmethod
+    def update_seller(seller_id, name, email, phone,
+                      password, status, activation_code):
+        seller = Seller.query.get(seller_id)
+        if not seller:
+            return None
+        seller.name = name
+        seller.email = email
+        seller.phone = phone
+        seller.password = password
+        seller.status = status
+        seller.activation_code = activation_code
+        db.session.commit()
+        return seller.to_domain()
+
+    @staticmethod
+    def delete_seller(seller_id):
+        seller = Seller.query.get(seller_id)
+        if not seller:
+            return None
+        db.session.delete(seller)
+        db.session.commit()
+        return seller.to_domain()
+
+    @staticmethod
     def authenticate(email, password):
         seller = Seller.query.filter_by(email=email).first()
         if seller and check_password_hash(seller.password, password):
