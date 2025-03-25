@@ -3,6 +3,7 @@ from flask_jwt_extended import JWTManager
 from datetime import timedelta
 from src.Config.data_base import init_db
 from src.routes import init_routes
+import os
 
 
 jwt = JWTManager()
@@ -11,8 +12,8 @@ jwt = JWTManager()
 def create_app():
     app = Flask(__name__)
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
-    app.config['JWT_SECRET_KEY'] = '15a1594f9ad60be7a8c9c846f7ec5c3'
-    app.config['SECRET_KEY'] = 'a53474c28c456c9e4ceef83c00c14d9'
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
     init_db(app)
 
