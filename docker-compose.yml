@@ -1,40 +1,13 @@
 services:
-  market_db_service:
-    image: postgres:latest
-    container_name: market_db_service
-    restart: unless-stopped
+  db:
+    container_name: db
+    image: postgres
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: market_management
+      POSTGRES_PASSWORD: projetoms
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: market_app
-    restart: unless-stopped
-    depends_on:
-      market_db_service:
-        condition: service_healthy
-    ports:
-      - "5001:5000"
-    volumes:
-      - .:/src
-    environment:
-      FLASK_APP: run.py
-      FLASK_ENV: development
-      SQLALCHEMY_DATABASE_URI: postgresql://root:root@market_db_service:5432/market_management
-    command: python run.py
-
+      - data_db:/var/lib/postgresql/data
+    
 volumes:
-  postgres_data:
+  data_db:

@@ -5,7 +5,7 @@ db = SQLAlchemy()
 
 def init_db(app):
     app.config['SQLALCHEMY_DATABASE_URI'] = (
-        'postgresql://root:root@market_db_service:5433/market_management'
+        'postgresql://postgres:projetoms@localhost:5432/postgres'
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_ECHO'] = True
