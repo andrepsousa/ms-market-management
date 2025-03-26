@@ -4,6 +4,7 @@ from src.Infrastructure.Models.user import Seller
 from src.Infrastructure.http.whats_app import WhatsAppService
 
 
+
 class SellerController:
     @staticmethod
     def register_seller():
@@ -28,31 +29,26 @@ class SellerController:
             return make_response(jsonify({"erro": "Email já em uso."}), 400)
 
         try:
-            # Instancia o serviço de WhatsApp
-            print("Instanciando o serviço de WhatsApp...")  # Log para indicar que o serviço está sendo instanciado
-            whats_app_service = WhatsAppService(
-                account_sid="your_account_sid",
-                auth_token="your_auth_token",
-                twilio_number="your_twilio_number"
-            )
-
-
-            # Enviar o código de ativação
-            print(f"Enviando código de ativação para o número: {phone}")  # Log antes de enviar o código
-            response = whats_app_service.enviar_codigo(phone)
-            print(f"Resposta do serviço WhatsApp: {response}")  # Log da resposta recebida do Twilio
-
-            # Verificar se o código foi gerado corretamente
-            activation_code = response.get('codigo')
-            if not activation_code:
-                print("Erro: Código de ativação não gerado!")  # Log caso o código não seja gerado
-                return make_response(jsonify({"erro": "Erro ao gerar o código de ativação."}), 500)
-
-            # Criar o vendedor
-            print(f"Criando vendedor com status {status} e código de ativação {activation_code}")  # Log da criação do vendedor
+            # Criar o vendedor e gerar o código de ativação
+            print("Criando vendedor e gerando código de ativação...")  # Log indicando a criação do vendedor
             seller = SellerService.create_user(
-                name, cnpj, email, phone, password, status, activation_code
+                name, cnpj, email, phone, password, status
             )
+
+            # Criar o serviço de WhatsApp apenas se for necessário
+            if seller.activation_code:
+                print(f"Enviando código de ativação para o número: {phone}")  # Log antes de enviar o código
+                account_sid = "your_account_sid"
+                auth_token = "your_auth_token"
+                twilio_number = "your_twilio_number"
+                
+                whats_app_service = WhatsAppService(
+                    account_sid=account_sid,
+                    auth_token=auth_token,
+                    twilio_number=twilio_number
+                )
+                response = whats_app_service.enviar_codigo(phone, seller.activation_code)  # Envia o código
+                print(f"Resposta do serviço WhatsApp: {response}")  # Log da resposta do serviço
 
             print("Vendedor criado com sucesso!")  # Log de sucesso após criar o vendedor
             return make_response(jsonify({
@@ -63,10 +59,7 @@ class SellerController:
         except Exception as e:
             # Log do erro
             print(f"Erro ao registrar vendedor: {e}")
-            print(f"Dados recebidos: {name}, {cnpj}, {email}, {phone}")
             return make_response(jsonify({"erro": "Erro ao registrar o vendedor."}), 500)
-
-
 
     @staticmethod
     def activate_seller(seller_id, activation_code):
