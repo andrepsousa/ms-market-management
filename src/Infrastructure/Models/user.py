@@ -11,7 +11,7 @@ class Seller(db.Model):
     phone = db.Column(db.String(15), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(10), default="Inativo")
-    activation_code = db.Column(db.String(6), nullable=True)
+    activation_code = db.Column(db.String(4), nullable=True)
     role = db.Column(db.String(10), nullable=False, default="Vendedor")
 
     def to_domain(self):

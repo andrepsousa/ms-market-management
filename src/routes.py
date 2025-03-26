@@ -38,6 +38,9 @@ def put_seller(seller_id):
 def remove_sellers(seller_id):
     return SellerController.delete_sellers(seller_id)
 
+@main_bp.route('/api/sellers/<int:seller_id>/activate/<activation_code>', methods=['POST'])
+def activate_seller(seller_id, activation_code):
+    return SellerController.activate_seller(seller_id, activation_code)    
 
 @main_bp.route('/api/auth/login', methods=['POST'])
 def login():

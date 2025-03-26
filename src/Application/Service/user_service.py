@@ -1,4 +1,5 @@
 from src.Infrastructure.Models.user import Seller
+from src.Infrastructure.http.whats_app import WhatsAppService
 from src.Config.data_base import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
@@ -25,7 +26,17 @@ class SellerService:
         db.session.add(new_seller)
         db.session.commit()
 
-        return new_seller.to_domain()
+        # Envia o código de ativação via WhatsApp
+        if role == "Vendedor" and activation_code:
+            account_sid = 'your_account_sid' 
+            auth_token = 'your_auth_token'    
+            twilio_number = 'your_twilio_phone_number'  
+           
+            whatsapp_service = WhatsAppService(account_sid, auth_token, twilio_number)
+
+            whatsapp_service.enviar_codigo(phone)  
+
+        return new_seller.to_domain()  
 
     @staticmethod
     def get_seller():

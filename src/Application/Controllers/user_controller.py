@@ -1,36 +1,86 @@
 from flask import request, jsonify, make_response
 from src.Application.Service.user_service import SellerService
 from src.Infrastructure.Models.user import Seller
+from src.Infrastructure.http.whats_app import WhatsAppService
 
 
 class SellerController:
     @staticmethod
     def register_seller():
+        # Obter dados da requisição
         data = request.get_json()
+        print("Dados recebidos:", data)  # Exibe os dados recebidos na requisição
         name = data.get('name')
         cnpj = data.get('cnpj')
         email = data.get('email')
         phone = data.get('phone')
         password = data.get('password')
-        status = data.get('status', 'Inativo')
-        activation_code = data.get('activation_code')
+        status = "Inativo"  # O status será "Inativo" inicialmente
 
-        if not all([name, cnpj, email, phone, password, activation_code]):
-            return make_response(jsonify({
-                "erro": "Todos os campos são obrigatórios."
-            }), 400)
+        # Verificar se todos os campos obrigatórios foram fornecidos
+        if not all([name, cnpj, email, phone, password]):
+            print("Erro: Faltam campos obrigatórios!")  # Log de erro caso falte algum campo
+            return make_response(jsonify({"erro": "Todos os campos são obrigatórios."}), 400)
 
+        # Verificar se o email já está em uso
         if Seller.query.filter_by(email=email).first():
-            return make_response(jsonify({
-                "erro": "Email já em uso."
-            }), 400)
+            print(f"Erro: Email já em uso: {email}")  # Log se o email já estiver em uso
+            return make_response(jsonify({"erro": "Email já em uso."}), 400)
 
-        seller = SellerService.create_user(
-            name, cnpj, email, phone, password, status)
-        return make_response(jsonify({
-            "mensagem": "Vendedor salvo com sucesso!",
-            "seller": seller.to_dict()
-        }), 201)
+        try:
+            # Instancia o serviço de WhatsApp
+            print("Instanciando o serviço de WhatsApp...")  # Log para indicar que o serviço está sendo instanciado
+            whats_app_service = WhatsAppService(
+                account_sid="your_account_sid",
+                auth_token="your_auth_token",
+                twilio_number="your_twilio_number"
+            )
+
+
+            # Enviar o código de ativação
+            print(f"Enviando código de ativação para o número: {phone}")  # Log antes de enviar o código
+            response = whats_app_service.enviar_codigo(phone)
+            print(f"Resposta do serviço WhatsApp: {response}")  # Log da resposta recebida do Twilio
+
+            # Verificar se o código foi gerado corretamente
+            activation_code = response.get('codigo')
+            if not activation_code:
+                print("Erro: Código de ativação não gerado!")  # Log caso o código não seja gerado
+                return make_response(jsonify({"erro": "Erro ao gerar o código de ativação."}), 500)
+
+            # Criar o vendedor
+            print(f"Criando vendedor com status {status} e código de ativação {activation_code}")  # Log da criação do vendedor
+            seller = SellerService.create_user(
+                name, cnpj, email, phone, password, status, activation_code
+            )
+
+            print("Vendedor criado com sucesso!")  # Log de sucesso após criar o vendedor
+            return make_response(jsonify({
+                "mensagem": "Vendedor salvo com sucesso! Um código de ativação foi enviado via WhatsApp.",
+                "seller": seller.to_dict()
+            }), 201)
+
+        except Exception as e:
+            # Log do erro
+            print(f"Erro ao registrar vendedor: {e}")
+            print(f"Dados recebidos: {name}, {cnpj}, {email}, {phone}")
+            return make_response(jsonify({"erro": "Erro ao registrar o vendedor."}), 500)
+
+
+
+    @staticmethod
+    def activate_seller(seller_id, activation_code):
+        seller = Seller.query.get(seller_id)
+        if not seller:
+            return make_response(jsonify({"erro": "Vendedor não encontrado."}), 404)
+        
+        if seller.activation_code == activation_code:
+            seller.status = "Ativo"
+            seller.activation_code = None  # Limpar o código de ativação depois de validado
+            db.session.commit()
+            return make_response(jsonify({"mensagem": "Vendedor ativado com sucesso!"}), 200)
+        
+        return make_response(jsonify({"erro": "Código de ativação inválido."}), 400)
 
     @staticmethod
     def get_sellers():
