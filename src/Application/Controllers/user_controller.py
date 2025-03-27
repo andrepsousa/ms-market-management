@@ -5,13 +5,11 @@ from src.Infrastructure.http.whats_app import WhatsAppService
 from src.Config.data_base import db
 
 
-
 class SellerController:
     @staticmethod
     def register_seller():
         # Obter dados da requisição
         data = request.get_json()
-        print("Dados recebidos:", data)  # Exibe os dados recebidos na requisição
         name = data.get('name')
         cnpj = data.get('cnpj')
         email = data.get('email')
@@ -21,23 +19,18 @@ class SellerController:
 
         # Verificar se todos os campos obrigatórios foram fornecidos
         if not all([name, cnpj, email, phone, password]):
-            print("Erro: Faltam campos obrigatórios!")  # Log de erro caso falte algum campo
             return make_response(jsonify({"erro": "Todos os campos são obrigatórios."}), 400)
 
         # Verificar se o email já está em uso
         if Seller.query.filter_by(email=email).first():
-            print(f"Erro: Email já em uso: {email}")  # Log se o email já estiver em uso
             return make_response(jsonify({"erro": "Email já em uso."}), 400)
 
         try:
             # Criar o vendedor e gerar o código de ativação
-            print("Criando vendedor e gerando código de ativação...")  # Log indicando a criação do vendedor
             seller = SellerService.create_user(
                 name, cnpj, email, phone, password, status
             )
 
-
-            print("Vendedor criado com sucesso!")  # Log de sucesso após criar o vendedor
             return make_response(jsonify({
                 "mensagem": "Vendedor salvo com sucesso! Um código de ativação foi enviado via WhatsApp.",
                 "seller": seller.to_dict()
@@ -45,7 +38,6 @@ class SellerController:
 
         except Exception as e:
             # Log do erro
-            print(f"Erro ao registrar vendedor: {e}")
             return make_response(jsonify({"erro": "Erro ao registrar o vendedor."}), 500)
 
     @staticmethod
@@ -53,9 +45,6 @@ class SellerController:
         seller = Seller.query.get(seller_id)
         if not seller:
             return make_response(jsonify({"erro": "Vendedor não encontrado."}), 404)
-
-        print(f"Código de ativação recebido: {activation_code}")
-        print(f"Código de ativação armazenado: {seller.activation_code}")    
         
         if str(seller.activation_code) == str(activation_code):
             seller.status = "Ativo"
@@ -86,11 +75,9 @@ class SellerController:
         email = data.get('email')
         phone = data.get('phone')
         password = data.get('password')
-        status = data.get('status')
-        activation_code = data.get('activation_code')
 
         user = SellerService.update_seller(
-            seller_id, name, email, phone, password, status, activation_code
+            seller_id, name, email, phone, password
         )
         if not user:
             return make_response(jsonify({

@@ -21,7 +21,7 @@ class SellerService:
             password=hashed_password,
             status="Inativo",
             activation_code=activation_code,
-            role=role
+            role="Vendedor"
         )
 
         db.session.add(new_seller)
@@ -45,7 +45,7 @@ class SellerService:
 
     @staticmethod
     def update_seller(seller_id, name, email, phone,
-                      password, status, activation_code):
+                      password):
         seller = Seller.query.get(seller_id)
         if not seller:
             return None
@@ -53,8 +53,6 @@ class SellerService:
         seller.email = email
         seller.phone = phone
         seller.password = password
-        seller.status = status
-        seller.activation_code = activation_code
         db.session.commit()
         return seller.to_domain()
 
