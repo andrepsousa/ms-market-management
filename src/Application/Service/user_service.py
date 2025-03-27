@@ -10,7 +10,8 @@ class SellerService:
     def create_user(name, cnpj, email, phone, password, role="Vendedor"):
         hashed_password = generate_password_hash(password)
         
-        activation_code = str(random.randint(1000, 9999)) if role == "Vendedor" else None
+        activation_code = str(random.randint(1000, 9999))
+        print(f'ESse é o Código: {activation_code}')
 
         new_seller = Seller(
             name=name,
@@ -26,13 +27,8 @@ class SellerService:
         db.session.add(new_seller)
         db.session.commit()
 
-        if role == "Vendedor" and activation_code:
-            account_sid = 'your_account_sid'
-            auth_token = 'your_auth_token'
-            twilio_number = 'your_twilio_phone_number'
-            
-            whatsapp_service = WhatsAppService(account_sid, auth_token, twilio_number)
-            whatsapp_service.enviar_codigo(phone, activation_code)  # Passa o código de ativação
+        whatsapp_service = WhatsAppService()
+        whatsapp_service.enviar_codigo(phone, activation_code)
 
         return new_seller.to_domain()
   

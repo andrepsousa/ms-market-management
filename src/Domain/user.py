@@ -1,6 +1,6 @@
 class SellerDomain:
     def __init__(self, id, name, cnpj, email, phone, password,
-                 status="Inativo", activation_code=None, role="Cliente"):
+                 status="Inativo", activation_code=None, role="Vendedor"):
         self.id = id
         self.name = name
         self.cnpj = cnpj

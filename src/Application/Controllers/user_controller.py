@@ -2,6 +2,7 @@ from flask import request, jsonify, make_response
 from src.Application.Service.user_service import SellerService
 from src.Infrastructure.Models.user import Seller
 from src.Infrastructure.http.whats_app import WhatsAppService
+from src.Config.data_base import db
 
 
 
@@ -35,20 +36,6 @@ class SellerController:
                 name, cnpj, email, phone, password, status
             )
 
-            # Criar o serviço de WhatsApp apenas se for necessário
-            if seller.activation_code:
-                print(f"Enviando código de ativação para o número: {phone}")  # Log antes de enviar o código
-                account_sid = "your_account_sid"
-                auth_token = "your_auth_token"
-                twilio_number = "your_twilio_number"
-                
-                whats_app_service = WhatsAppService(
-                    account_sid=account_sid,
-                    auth_token=auth_token,
-                    twilio_number=twilio_number
-                )
-                response = whats_app_service.enviar_codigo(phone, seller.activation_code)  # Envia o código
-                print(f"Resposta do serviço WhatsApp: {response}")  # Log da resposta do serviço
 
             print("Vendedor criado com sucesso!")  # Log de sucesso após criar o vendedor
             return make_response(jsonify({
@@ -66,8 +53,11 @@ class SellerController:
         seller = Seller.query.get(seller_id)
         if not seller:
             return make_response(jsonify({"erro": "Vendedor não encontrado."}), 404)
+
+        print(f"Código de ativação recebido: {activation_code}")
+        print(f"Código de ativação armazenado: {seller.activation_code}")    
         
-        if seller.activation_code == activation_code:
+        if str(seller.activation_code) == str(activation_code):
             seller.status = "Ativo"
             seller.activation_code = None  # Limpar o código de ativação depois de validado
             db.session.commit()

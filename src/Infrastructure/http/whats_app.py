@@ -13,17 +13,14 @@ twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
 
 
 class WhatsAppService:
-    def __init__(self, account_sid, auth_token, twilio_number):
-        self.client = Client(account_sid, auth_token)
-        self.twilio_number = twilio_number
+    def __init__(self):
+        self.account_sid = 'AC414bf889a4c7b481bc78a65b64d238f2'
+        self.auth_token = '486a00f7c1d0d97728b3729ac1aa483a'
+        self.twilio_number = 'whatsapp:+14155238886'
+        self.client = Client(self.account_sid, self.auth_token)
 
-    def gerar_codigo(self):
-        """Gera um código de 4 dígitos"""
-        return str(random.randint(1000, 9999))
-
-    def enviar_codigo(self, numero_destino):
+    def enviar_codigo(self, numero_destino, codigo):
         """Envia o código de ativação para o número via WhatsApp"""
-        codigo = self.gerar_codigo()
         mensagem = f"Seu código de ativação é: {codigo}"
 
         # Envia a mensagem via Twilio WhatsApp
@@ -33,5 +30,6 @@ class WhatsAppService:
             to=f"whatsapp:{numero_destino}"
         )
         
+        print(message)
         # Retorna o código gerado e o SID da mensagem
         return {"codigo": codigo, "sid": message.sid}
