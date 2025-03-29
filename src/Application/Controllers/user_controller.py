@@ -104,13 +104,20 @@ class LoginController:
 
         seller = SellerService.authenticate(email, password)
 
-        if seller:
+        if seller and seller.status == "Ativo":
             return make_response(jsonify({
-                "messagem": "Login successful!",
+                "message": "Login realizado com sucesso!",
                 "user": seller.to_domain().to_dict()
             }), 200)
+        elif seller and seller.status == "Inativo":
+            # Enviar código de ativação via WhatsApp
+            whatsapp_service = WhatsAppService()
+            activation_code = seller.activation_code
+            whatsapp_service.enviar_codigo(seller.phone, activation_code)
+            return make_response(jsonify({"error": "Vendedor inativo. Verifique o código que foi enviado para o seu WhatsApp para realizar a ativação."}), 403)
 
-        else:
-            return make_response(jsonify({
-                "error": "Invalid credentials"
-            }), 400)
+
+        if not seller: 
+            return make_response(jsonify({"error": "Email ou senha inválidos."}), 401)
+        
+        return make_response(jsonify({"error": "Erro ao autenticar o vendedor."}), 500)
