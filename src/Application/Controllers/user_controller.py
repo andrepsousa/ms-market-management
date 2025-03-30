@@ -6,6 +6,9 @@ from src.Infrastructure.http.whats_app import WhatsAppService
 from src.Config.data_base import db
 from datetime import timedelta
 import re
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
 
 class SellerController:
     @staticmethod
@@ -27,6 +30,14 @@ class SellerController:
         if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email):
             return make_response(jsonify({"erro": "Email inválido."}), 400)
 
+        # Validar o formato do telefone, considerando o formato internacional (+55)
+        if not re.match(r'^\+55\d{11}$', phone):
+            return make_response(jsonify({"erro": "Telefone inválido. Deve ter 13 dígitos, incluindo o código do país (+55)."}), 400)
+
+        # Validar o tamanho do CNPJ (geralmente 14 dígitos)
+        if len(cnpj) != 14 or not cnpj.isdigit():
+            return make_response(jsonify({"erro": "CNPJ inválido. Deve ter exatamente 14 dígitos."}), 400)
+
         # Verificar se o email já está em uso
         if Seller.query.filter_by(email=email).first():
             return make_response(jsonify({"erro": "Email já em uso."}), 400)
@@ -43,8 +54,7 @@ class SellerController:
         except Exception as e:
             # Log do erro
             return make_response(jsonify({"erro": "Erro ao registrar o vendedor."}), 500)
-
-
+        
     @staticmethod
     def activate_seller(seller_id, activation_code):
         seller = Seller.query.get(seller_id)
@@ -79,10 +89,52 @@ class SellerController:
         phone = data.get('phone')
         password = data.get('password')
 
-        user = SellerService.update_seller(seller_id, name, email, phone, password)
+        # Verificação de campos obrigatórios
+        if not name:
+            return make_response(jsonify({"error": "O nome não pode estar vazio."}), 400)
+        
+        if not email:
+            return make_response(jsonify({"error": "O e-mail não pode estar vazio."}), 400)
+
+        if not phone:
+            return make_response(jsonify({"error": "O telefone não pode estar vazio."}), 400)
+
+        # Validação de e-mail
+        email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        if not re.match(email_regex, email):
+            return make_response(jsonify({"error": "E-mail inválido."}), 400)
+        
+         # Validação do telefone (somente números e exatamente 13 dígitos)
+        phone_regex = r'^\+55\d{11}$'
+        if not re.match(phone_regex, phone):
+            return make_response(jsonify({"error": "O telefone deve estar no formato correto: +55XXXXXXXXXXX"}), 400)
+
+        user = SellerService.get_seller_by_id(seller_id)
+        if not user:
+                return make_response(jsonify({"error": "Usuário não encontrado."}), 404)
+
+        # Criptografar a senha apenas se ela for diferente da atual
+        if password and not check_password_hash(user.password, password):
+            password = generate_password_hash(password, method='pbkdf2:sha256')
+        else:
+            password = user.password  # Mantém a senha antiga
+
+
+
+        # Buscar usuário para verificações adicionais
+        user = SellerService.get_seller_by_id(seller_id)
         if not user:
             return make_response(jsonify({"error": "Usuário não encontrado."}), 404)
-        return make_response(jsonify(user.to_dict()), 200)
+
+        # Verificar se a senha nova é a mesma que a atual
+        if password and user.password == password:
+            return make_response(jsonify({"error": "A nova senha não pode ser igual à senha atual."}), 400)
+
+        updated_user = SellerService.update_seller(seller_id, name, email, phone, password)
+        return make_response(jsonify(updated_user.to_dict()), 200)
+
+
+
 
     @staticmethod
     def delete_sellers(seller_id):
