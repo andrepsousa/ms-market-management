@@ -26,9 +26,13 @@ class SellerService:
 
         db.session.add(new_seller)
         db.session.commit()
+        print("Seller criado no banco com sucesso.")
 
+
+        print(f"Tentando enviar código de ativação para {phone}")
         whatsapp_service = WhatsAppService()
         whatsapp_service.enviar_codigo(phone, activation_code)
+        print("Código enviado com sucesso.")
 
         return new_seller.to_domain()
   
