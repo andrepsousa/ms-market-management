@@ -41,6 +41,11 @@ class SellerController:
         # Verificar se o email já está em uso
         if Seller.query.filter_by(email=email).first():
             return make_response(jsonify({"erro": "Email já em uso."}), 400)
+        
+        # Verificar se o CNPJ já está em uso
+        if Seller.query.filter_by(cnpj=cnpj).first():
+            return make_response(jsonify({"erro": "CNPJ já cadastrado."}), 400)
+
 
         try:
             # Criar o vendedor e gerar o código de ativação
@@ -52,7 +57,7 @@ class SellerController:
             }), 201)
 
         except Exception as e:
-            # Log do erro
+            print(f"Erro: {str(e)}")  # Para debugging, pode remover em produção
             return make_response(jsonify({"erro": "Erro ao registrar o vendedor."}), 500)
         
     @staticmethod
