@@ -14,8 +14,8 @@ twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
 
 class WhatsAppService:
     def __init__(self):
-        self.account_sid = 'AC414bf889a4c7b481bc78a65b64d238f2'
-        self.auth_token = '69a377a4782f8f8f0d85fd08ee6aee46'
+        self.account_sid = 'AC31942627d7272f50158531c4c3fb8c3b'
+        self.auth_token = 'b08378934f8875dfbb4c8568ddef4f62'
         self.twilio_number = 'whatsapp:+14155238886'
         self.client = Client(self.account_sid, self.auth_token)
 

@@ -4,8 +4,10 @@ from datetime import timedelta
 from flask_migrate import Migrate
 from src.Config.data_base import init_db, db
 from src.routes import main_bp
+from src.product_routes import product_bp
 import os
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -21,6 +23,7 @@ def create_app():
 
     init_db(app)
     app.register_blueprint(main_bp)
+    app.register_blueprint(product_bp)
     jwt.init_app(app)
     migrate.init_app(app, db)
 
