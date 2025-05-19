@@ -11,6 +11,9 @@ def create_sale(seller_id, product_id, quantidade):
         raise ValueError("Produto não encontrado ou não pertence ao vendedor.")
 
     # Validações
+    if quantidade <= 0:
+        raise ValueError("A quantidade deve ser maior que zero.")
+
     if not product.status:
         raise ValueError("Produto inativo. Não pode ser vendido.")
 
