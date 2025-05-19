@@ -1,9 +1,10 @@
 from flask import Blueprint, jsonify, make_response
+from src.sale_routes import sale_bp
 from src.Application.Controllers.user_controller import (
     LoginController, SellerController
 )
 from flask_jwt_extended import jwt_required
-from src.product_routes import product_bp  # <- IMPORTAÇÃO AQUI
+from src.product_routes import product_bp
 
 main_bp = Blueprint("main_bp", __name__)
 
