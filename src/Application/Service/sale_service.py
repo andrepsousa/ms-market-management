@@ -5,12 +5,10 @@ from src.Domain.sale import Sale as SaleDomain
 from datetime import datetime
 
 def create_sale(seller_id, product_id, quantidade):
-    # Buscar produto
     product = ProductModel.query.filter_by(id=product_id, seller_id=seller_id).first()
     if not product:
         raise ValueError("Produto não encontrado ou não pertence ao vendedor.")
 
-    # Validações
     if quantidade <= 0:
         raise ValueError("A quantidade deve ser maior que zero.")
 
@@ -20,7 +18,6 @@ def create_sale(seller_id, product_id, quantidade):
     if product.quantidade < quantidade:
         raise ValueError("Estoque insuficiente.")
 
-    # Criar venda
     nova_venda = SaleModel(
         product_id=product.id,
         seller_id=seller_id,
@@ -29,10 +26,9 @@ def create_sale(seller_id, product_id, quantidade):
         data=datetime.utcnow()
     )
 
-    # Atualiza estoque
     product.quantidade -= quantidade
 
     db.session.add(nova_venda)
     db.session.commit()
 
-    return nova_venda.to_domain()
+    return nova_venda.to_domain(), product.name
