@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 from flask_migrate import Migrate
@@ -15,7 +16,6 @@ load_dotenv()
 jwt = JWTManager()
 migrate = Migrate()
 
-
 def create_app():
     app = Flask(__name__)
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
@@ -29,8 +29,9 @@ def create_app():
     jwt.init_app(app)
     migrate.init_app(app, db)
 
-    return app
+    CORS(app)
 
+    return app
 
 app = create_app()
 
@@ -38,6 +39,7 @@ app = create_app()
 with app.app_context():
     db.create_all()
     print("Banco de dados criado com sucesso!")
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

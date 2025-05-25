@@ -16,7 +16,7 @@ def health():
     }), 200)
 
 # Rotas de vendedores
-@main_bp.route('/api/sellers', methods=['POST'])
+@main_bp.route('/api/sellers/criar', methods=['POST'])
 def create_sellers():
     return SellerController.register_seller()
 

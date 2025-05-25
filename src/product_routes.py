@@ -4,7 +4,7 @@ from src.Application.Controllers.product_controller import ProductController
 product_bp = Blueprint('product_bp', __name__)
 
 # Criar produto
-@product_bp.route('/api/products', methods=['POST'])
+@product_bp.route('/api/products/criar', methods=['POST'])
 def create_product():
     return ProductController.create_product()
 
