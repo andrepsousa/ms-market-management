@@ -19,7 +19,7 @@ def get_product(product_id):
     return ProductController.get_product(product_id)
 
 # Atualizar produto
-@product_bp.route('/api/products/<int:product_id>', methods=['PUT'])
+@product_bp.route('/api/products/atualizar/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     return ProductController.update_product(product_id)
 
