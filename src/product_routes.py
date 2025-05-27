@@ -27,3 +27,8 @@ def update_product(product_id):
 @product_bp.route('/api/products/<int:product_id>/inactivate', methods=['PATCH'])
 def inactivate_product(product_id):
     return ProductController.inactivate_product(product_id)
+
+# Ativar produto
+@product_bp.route('/api/products/<int:product_id>/activate', methods=['PATCH'])
+def activate_product(product_id):
+    return ProductController.activate_product(product_id)

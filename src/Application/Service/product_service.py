@@ -42,3 +42,13 @@ def inactivate_product(product_id, seller_id):
     product_model.status = False
     db.session.commit()
     return product_model.to_domain()
+
+def activate_product(product_id, seller_id):
+    product_model = ProductModel.query.filter_by(id=product_id, seller_id=seller_id).first()
+    if not product_model:
+        return None
+    
+    product_model.status = True
+    db.session.commit()
+    return product_model.to_domain()
+

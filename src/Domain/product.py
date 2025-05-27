@@ -10,6 +10,9 @@ class Product:
 
     def inactivate(self):
         self.status = False
+    
+    def activate(self):
+        self.status = True
 
     def is_active(self):
         return self.status

@@ -83,3 +83,12 @@ class ProductController:
         if not product:
             return make_response(jsonify({"erro": "Produto não encontrado para inativação."}), 404)
         return make_response(jsonify({"mensagem": "Produto inativado com sucesso."}), 200)
+
+    @staticmethod
+    @jwt_required()
+    def activate_product(product_id):
+        seller_id = get_jwt_identity()
+        product = product_service.activate_product(product_id, seller_id)
+        if not product:
+            return make_response(jsonify({"erro": "Produto não encontrado para a ativação"}), 404)
+        return make_response(jsonify({"erro": "Produto ativado com sucesso"}), 200)
