@@ -61,8 +61,8 @@ class SellerController:
             return make_response(jsonify({"erro": "Erro ao registrar o vendedor."}), 500)
         
     @staticmethod
-    def activate_seller(seller_id, activation_code):
-        seller = Seller.query.get(seller_id)
+    def activate_seller(phone, activation_code):
+        seller = Seller.query.filter_by(phone=phone).first()
         if not seller:
             return make_response(jsonify({"erro": "Vendedor não encontrado."}), 404)
 
