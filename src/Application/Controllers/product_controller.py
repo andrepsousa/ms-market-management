@@ -47,7 +47,14 @@ class ProductController:
         seller_id = get_jwt_identity()
         products = product_service.list_products_by_seller(seller_id)
         return make_response(jsonify([p.to_dict() for p in products]), 200)
-
+    
+    @staticmethod
+    @jwt_required()
+    def list_products_inactivated():
+        seller_id = get_jwt_identity()
+        products = product_service.list_products_by_seller_inactivated(seller_id)
+        return make_response(jsonify([p.to_dict() for p in products]), 200)
+    
     @staticmethod
     @jwt_required()
     def update_product(product_id):

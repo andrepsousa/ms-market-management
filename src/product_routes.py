@@ -13,6 +13,11 @@ def create_product():
 def list_products():
     return ProductController.list_products()
 
+# Listar produtos inativados do vendedor autenticado
+@product_bp.route('/api/products/inactivated', methods=['GET'])
+def list_products_inactivated():
+    return ProductController.list_products_inactivated()
+
 # Buscar produto por ID
 @product_bp.route('/api/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
@@ -29,6 +34,6 @@ def inactivate_product(product_id):
     return ProductController.inactivate_product(product_id)
 
 # Ativar produto
-@product_bp.route('/api/products/<int:product_id>/activate', methods=['PATCH'])
+@product_bp.route('/api/products/<int:product_id>/ativar', methods=['PATCH'])
 def activate_product(product_id):
     return ProductController.activate_product(product_id)

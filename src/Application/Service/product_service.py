@@ -21,8 +21,14 @@ def get_product_by_id(product_id, seller_id):
         return None
     return product.to_domain()
 
+# PRODUTOS ATIVOS
 def list_products_by_seller(seller_id):
     products = ProductModel.query.filter_by(seller_id=seller_id, status=True).all()
+    return [product.to_domain() for product in products]
+
+# PRODUTOS INATIVOS
+def list_products_by_seller_inactivated(seller_id):
+    products = ProductModel.query.filter_by(seller_id=seller_id, status=False).all()
     return [product.to_domain() for product in products]
 
 def update_product(product_id, seller_id, updated_product: ProductDomain):
